@@ -1,0 +1,54 @@
+import pandas as pd
+
+input_file = "input.xlsx"
+output_file = "output.xlsx"
+
+# Excel ki first sheet read karo
+df = pd.read_excel(input_file, sheet_name=0)
+
+# First column = Document ID
+document_id_column = df.columns[0]
+
+# Baaki saare columns = Headers
+data_columns = df.columns[1:]
+
+results = []
+
+# Har Document ID ke liye
+for document_id, group in df.groupby(document_id_column, sort=False):
+
+    first_row = True
+
+    # Har Header check karo
+    for column in data_columns:
+
+        # Kitni non-blank entries hain
+        count = group[column].notna().sum()
+
+        # Sirf data wale headers
+        if count > 0:
+
+            results.append({
+                "Document ID": document_id if first_row else "",
+                "Header Name": column,
+                "Total Entries": count
+            })
+
+            first_row = False
+
+
+# Result DataFrame
+result_df = pd.DataFrame(results)
+
+# Output Excel
+with pd.ExcelWriter(output_file, engine="openpyxl") as writer:
+
+    # Original data
+    df.to_excel(writer, sheet_name="Sheet1", index=False)
+
+    # Result
+    result_df.to_excel(writer, sheet_name="Sheet2", index=False)
+
+
+print("Done Successfully!")
+print("Output saved as:", output_file)
