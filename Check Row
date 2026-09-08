@@ -1,0 +1,81 @@
+Sub DocumentID_Header_Count()
+
+    Dim ws1 As Worksheet
+    Dim ws2 As Worksheet
+    Dim LastRow As Long
+    Dim LastCol As Long
+    Dim i As Long, j As Long
+    Dim OutputRow As Long
+    Dim DocID As String
+    Dim CountData As Long
+    Dim Dict As Object
+    Dim Key As String
+    
+    Set ws1 = ThisWorkbook.Sheets("Sheet1")
+    Set ws2 = ThisWorkbook.Sheets("Sheet2")
+    
+    ws2.Cells.Clear
+    
+    ' Last Row
+    LastRow = ws1.Cells(ws1.Rows.Count, 1).End(xlUp).Row
+    
+    ' Last Column
+    LastCol = ws1.Cells(1, ws1.Columns.Count).End(xlToLeft).Column
+    
+    ' Sheet2 Header
+    ws2.Cells(1, 1).Value = "Document ID"
+    ws2.Cells(1, 2).Value = "Header Name"
+    ws2.Cells(1, 3).Value = "Data Count"
+    
+    OutputRow = 2
+    
+    Set Dict = CreateObject("Scripting.Dictionary")
+    
+    ' Loop All Data
+    For i = 2 To LastRow
+        
+        DocID = ws1.Cells(i, 1).Value
+        
+        If DocID <> "" Then
+            
+            For j = 2 To LastCol
+                
+                If ws1.Cells(i, j).Value <> "" Then
+                    
+                    Key = DocID & "|" & ws1.Cells(1, j).Value
+                    
+                    If Dict.Exists(Key) Then
+                        Dict(Key) = Dict(Key) + 1
+                    Else
+                        Dict.Add Key, 1
+                    End If
+                    
+                End If
+                
+            Next j
+            
+        End If
+        
+    Next i
+    
+    ' Output Result
+    Dim Item As Variant
+    Dim SplitData As Variant
+    
+    For Each Item In Dict.Keys
+        
+        SplitData = Split(Item, "|")
+        
+        ws2.Cells(OutputRow, 1).Value = SplitData(0)
+        ws2.Cells(OutputRow, 2).Value = SplitData(1)
+        ws2.Cells(OutputRow, 3).Value = Dict(Item)
+        
+        OutputRow = OutputRow + 1
+        
+    Next Item
+    
+    ws2.Columns.AutoFit
+    
+    MsgBox "Data Summary Successfully Created!"
+
+End Sub
