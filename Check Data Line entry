@@ -1,0 +1,64 @@
+Sub CountHeaderEntries()
+
+    Dim wsSource As Worksheet
+    Dim wsResult As Worksheet
+    Dim lastCol As Long
+    Dim lastRow As Long
+    Dim col As Long
+    Dim resultRow As Long
+    Dim headerName As String
+    Dim entryCount As Long
+
+    ' Source Sheet
+    Set wsSource = Worksheets("Sheet1")
+
+    ' Result Sheet
+    Set wsResult = Worksheets("Sheet2")
+
+    ' Clear old data
+    wsResult.Cells.Clear
+
+    ' Result Headers
+    wsResult.Cells(1, 1).Value = "Header Name"
+    wsResult.Cells(1, 2).Value = "Total Entries"
+
+    resultRow = 2
+
+    ' Find last column in Row 1
+    lastCol = wsSource.Cells(1, wsSource.Columns.Count).End(xlToLeft).Column
+
+    ' Loop from Column B (Ignore Column A - Document ID)
+    For col = 2 To lastCol
+
+        headerName = wsSource.Cells(1, col).Value
+
+        ' Only process non-blank headers
+        If headerName <> "" Then
+
+            ' Find last row in current column
+            lastRow = wsSource.Cells(wsSource.Rows.Count, col).End(xlUp).Row
+
+            ' Count non-blank cells below header
+            If lastRow > 1 Then
+                entryCount = Application.WorksheetFunction.CountA( _
+                    wsSource.Range(wsSource.Cells(2, col), wsSource.Cells(lastRow, col)))
+            Else
+                entryCount = 0
+            End If
+
+            ' Write result
+            wsResult.Cells(resultRow, 1).Value = headerName
+            wsResult.Cells(resultRow, 2).Value = entryCount
+
+            resultRow = resultRow + 1
+
+        End If
+
+    Next col
+
+    ' AutoFit Columns
+    wsResult.Columns("A:B").AutoFit
+
+    MsgBox "Data counted successfully!", vbInformation
+
+End Sub
