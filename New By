@@ -1,0 +1,72 @@
+import pandas as pd
+
+input_file = "input.xlsx"
+output_file = "output.xlsx"
+
+print("Reading Excel file...")
+
+# First Sheet read karo
+df = pd.read_excel(input_file, sheet_name=0)
+
+# First column = Document ID
+doc_col = df.columns[0]
+
+# Column B se last tak ALL headers
+data_cols = df.columns[1:]
+
+print("Total Rows:", len(df))
+print("Total Headers:", len(data_cols))
+print("Processing Document IDs...")
+
+results = []
+
+# Document ID ke according group
+# sort=False se original order maintain rahega
+for document_id, group in df.groupby(doc_col, sort=False):
+
+    first_entry = True
+
+    # Saare 1200+ columns ek saath check
+    counts = group[data_cols].notna().sum()
+
+    # Sirf jisme data hai
+    non_empty = counts[counts > 0]
+
+    # Header aur Count add karo
+    for header, count in non_empty.items():
+
+        results.append({
+            "Document ID": document_id if first_entry else "",
+            "Header Name": header,
+            "Total Entries": int(count)
+        })
+
+        # Document ID ab repeat nahi hogi
+        first_entry = False
+
+
+print("Creating Result...")
+
+result_df = pd.DataFrame(
+    results,
+    columns=[
+        "Document ID",
+        "Header Name",
+        "Total Entries"
+    ]
+)
+
+# Result Sheet2 mein save
+with pd.ExcelWriter(
+    output_file,
+    engine="openpyxl"
+) as writer:
+
+    result_df.to_excel(
+        writer,
+        sheet_name="Sheet2",
+        index=False
+    )
+
+print("DONE!")
+print("Output saved:", output_file)
