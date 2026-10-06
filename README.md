@@ -4,3 +4,7 @@
 
 
 =LET(x,TRIM(TEXTSPLIT(A2,"|")),u,UNIQUE(x),FILTER(u,COUNTIF(x,u)>1,"No Duplicate"))
+
+
+
+=LET(x,TRIM(TEXTSPLIT(A2,"|")),IF(COUNTA(UNIQUE(x))<COUNTA(x),"DUPLICATE","OK"))
