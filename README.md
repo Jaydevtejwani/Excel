@@ -162,3 +162,6 @@ Sub FindDuplicateDocumentIDs()
            vbInformation, "Completed"
 
 End Sub
+
+
+=LET(x,TRIM(TEXTSPLIT(B2,",")),n,FILTER(x,ISERROR(SEARCH("_",x))),INDEX(n,XMATCH(MAX(LEN(n)),LEN(n))))
